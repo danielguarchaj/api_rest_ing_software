@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="title is-1">API REST - Estudiantes</h1>
+    <form onsubmit="onSubmitHandler(event)">
+      <div class="field">
+        <label class="label">Buscar por ID</label>
+        <div class="control">
+          <input class="input" type="text" placeholder="Ingresa el hash ID del estudiante">
+        </div>
+        <button type="submit" value="Buscar Estudiante" class="button is-primary mt-3">Buscar Estudiante</button>
+      </div>
+    </form>
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombres</th>
+            <th>Apellidos</th>
+            <th>Fecha de nacimiento</th>
+            <th>Carrera</th>
+            <th>Promedio</th>
+            <th>Carnet</th>
+          </tr>
+        </thead>
+        <tbody id="studentsTBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    const BASE_URL = "http://localhost:3000/api/students/"
+
+    const fetchStudents = async (studentId) => {
+      const response = await fetch(`${BASE_URL}${studentId || ""}`);
+      const studentsTBody = document.getElementById("studentsTBody");
+
+      if (response.status !== 200) {
+        studentsTBody.innerHTML = '';
+        return;
+      }
+
+      const responseData = await response.json();
+      if (responseData.length === undefined) {
+        const { id,
+          name,
+          lastName,
+          birthdate,
+          career,
+          averageScore,
+          idCard } = responseData;
+        studentsTBody.innerHTML = `
+        <tr>
+          <td>${id}</td>
+          <td>${name}</td>
+          <td>${lastName}</td>
+          <td>${birthdate}</td>
+          <td>${career}</td>
+          <td>${averageScore}</td>
+          <td>${idCard}</td>
+        </tr>
+        `
+        return;
+      }
+      studentsTBody.innerHTML = responseData.reduce((accumulator, {
+        id,
+        name,
+        lastName,
+        birthdate,
+        career,
+        averageScore,
+        idCard
+      }) => (
+        accumulator + `
+        <tr>
+          <td>${id}</td>
+          <td>${name}</td>
+          <td>${lastName}</td>
+          <td>${birthdate}</td>
+          <td>${career}</td>
+          <td>${averageScore}</td>
+          <td>${idCard}</td>
+        </tr>
+        `
+      ), '');
+    }
+
+    const onSubmitHandler = async (e) => {
+      e.preventDefault();
+      fetchStudents(e.srcElement[0].value)
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchStudents();
+    })
+  </script>
+</body>
+
+</html>
